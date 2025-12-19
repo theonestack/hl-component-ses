@@ -1,0 +1,25 @@
+# Cfhighlander output
+out/
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+Gemfile.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Debug logs
+.cursor/
+

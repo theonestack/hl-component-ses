@@ -1,0 +1,11 @@
+test_metadata:
+  type: config
+  name: default
+  description: Test the default SES configuration with minimal settings
+
+# Uses all default values from ses.config.yaml
+# Creates:
+# - Email Identity with DKIM enabled
+# - Configuration Set with reputation metrics
+# No event destinations or Route53 records
+

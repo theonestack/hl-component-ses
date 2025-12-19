@@ -1,0 +1,51 @@
+test_metadata:
+  type: config
+  name: route53
+  description: Test SES with automatic Route53 DNS record management
+
+test_parameters:
+  DnsDomain: example.com
+  HostedZoneId: Z1234567890ABC
+
+# Domain identity settings
+domain: ${DnsDomain}
+dkim_signing_key_length: 2048
+mail_from_subdomain: mail
+
+# Enable Route53 DNS record management
+# This will create:
+# - 3 DKIM CNAME records
+# - Mail-from MX record
+# - Mail-from SPF TXT record
+# - DMARC TXT record
+manage_dns_records: true
+
+# DMARC policy settings
+dmarc:
+  policy: quarantine
+  rua: dmarc-reports@example.com
+  ruf: dmarc-forensics@example.com
+  pct: 100
+
+# Configuration set
+configuration_set:
+  enabled: true
+  reputation_metrics: true
+  sending_enabled: true
+  tls_policy: REQUIRE
+  suppression:
+    reasons:
+      - BOUNCE
+      - COMPLAINT
+
+# SNS destination for bounce notifications
+event_destinations:
+  - name: bounce-notifications
+    enabled: true
+    type: sns
+    topic_arn:
+      Fn::Sub: arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-bounces
+    events:
+      - BOUNCE
+      - COMPLAINT
+

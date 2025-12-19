@@ -1,0 +1,96 @@
+# SES Component Configuration
+# ===========================
+
+# Domain identity settings
+# The domain to verify for email sending (uses DnsDomain parameter by default)
+domain: ${DnsDomain}
+
+# DKIM signing key length - 1024 or 2048 bits
+# 2048 is recommended for better security
+dkim_signing_key_length: 2048
+
+# Mail-from subdomain for SPF alignment
+# Emails will be sent from mail.yourdomain.com
+mail_from_subdomain: mail
+
+# Route53 DNS management (optional)
+# Set to true to automatically create DKIM, SPF, and DMARC records
+# Requires HostedZoneId parameter when enabled
+manage_dns_records: false
+
+# DMARC policy settings (only used when manage_dns_records is true)
+dmarc:
+  policy: none  # none, quarantine, or reject
+  rua: ""       # Aggregate report email address (optional)
+  ruf: ""       # Forensic report email address (optional)
+  pct: 100      # Percentage of messages to apply policy to
+
+# Configuration set settings
+configuration_set:
+  # Enable the configuration set
+  enabled: true
+  # Name of the configuration set (auto-generated if not specified)
+  # name: my-config-set
+  # Enable reputation metrics (bounce rate, complaint rate)
+  reputation_metrics: true
+  # Enable sending through this configuration set
+  sending_enabled: true
+  # TLS policy: REQUIRE or OPTIONAL
+  tls_policy: REQUIRE
+  # Suppression list options
+  suppression:
+    # Suppression list reasons: BOUNCE, COMPLAINT, or both
+    reasons:
+      - BOUNCE
+      - COMPLAINT
+
+# Event destinations for tracking email metrics
+# Supported types: sns, cloudwatch, kinesis_firehose, eventbridge
+#
+# Example configurations:
+#
+# event_destinations:
+#   - name: bounces-to-sns
+#     enabled: true
+#     type: sns
+#     topic_arn: arn:aws:sns:us-east-1:123456789012:ses-bounces
+#     events:
+#       - BOUNCE
+#       - COMPLAINT
+#
+#   - name: metrics-to-cloudwatch
+#     enabled: true
+#     type: cloudwatch
+#     events:
+#       - SEND
+#       - DELIVERY
+#       - BOUNCE
+#       - COMPLAINT
+#     dimensions:
+#       - name: ses:source-ip
+#         default_value: unknown
+#
+#   - name: events-to-firehose
+#     enabled: true
+#     type: kinesis_firehose
+#     delivery_stream_arn: arn:aws:firehose:us-east-1:123456789012:deliverystream/ses-events
+#     iam_role_arn: arn:aws:iam::123456789012:role/ses-firehose-role
+#     events:
+#       - SEND
+#       - DELIVERY
+#       - BOUNCE
+#       - COMPLAINT
+#       - REJECT
+#       - OPEN
+#       - CLICK
+#
+#   - name: events-to-eventbridge
+#     enabled: true
+#     type: eventbridge
+#     event_bus_arn: arn:aws:events:us-east-1:123456789012:event-bus/default
+#     events:
+#       - BOUNCE
+#       - COMPLAINT
+#
+event_destinations: []
+

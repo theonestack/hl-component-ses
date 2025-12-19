@@ -1,0 +1,82 @@
+test_metadata:
+  type: config
+  name: full
+  description: Test SES with all event destination types configured
+
+test_parameters:
+  DnsDomain: example.com
+
+# Domain identity settings
+domain: ${DnsDomain}
+dkim_signing_key_length: 2048
+mail_from_subdomain: mail
+
+# Configuration set with custom name
+configuration_set:
+  enabled: true
+  name: ${EnvironmentName}-email-tracking
+  reputation_metrics: true
+  sending_enabled: true
+  tls_policy: REQUIRE
+  suppression:
+    reasons:
+      - BOUNCE
+      - COMPLAINT
+
+# Event destinations - all types
+event_destinations:
+  - name: bounces-complaints-sns
+    enabled: true
+    type: sns
+    topic_arn:
+      Fn::Sub: arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications
+    events:
+      - BOUNCE
+      - COMPLAINT
+
+  - name: delivery-metrics
+    enabled: true
+    type: cloudwatch
+    events:
+      - SEND
+      - DELIVERY
+      - BOUNCE
+      - COMPLAINT
+      - REJECT
+    dimensions:
+      - name: ses:configuration-set
+        source: messageTag
+        default_value: default
+      - name: ses:source-ip
+        source: messageTag
+        default_value: unknown
+
+  - name: all-events-firehose
+    enabled: true
+    type: kinesis_firehose
+    delivery_stream_arn:
+      Fn::Sub: arn:aws:firehose:${AWS::Region}:${AWS::AccountId}:deliverystream/ses-events
+    iam_role_arn:
+      Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/ses-firehose-role
+    events:
+      - SEND
+      - DELIVERY
+      - BOUNCE
+      - COMPLAINT
+      - REJECT
+      - OPEN
+      - CLICK
+      - RENDERING_FAILURE
+      - DELIVERY_DELAY
+      - SUBSCRIPTION
+
+  - name: events-eventbridge
+    enabled: true
+    type: eventbridge
+    event_bus_arn:
+      Fn::Sub: arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+    events:
+      - BOUNCE
+      - COMPLAINT
+      - DELIVERY_DELAY
+
